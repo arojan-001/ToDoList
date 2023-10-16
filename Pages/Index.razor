@@ -83,16 +83,16 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Task</h5>
+                    <h6 class="modal-title">Edit Task</h6>
                     <button type="button" class="close" @onclick="CloseEditTaskModal">
                         <span>&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <!-- Edit task form here -->
+                    <h6>Edit Task Details</h6> <!-- Add title here -->
                     <input class="form-control" @bind="editedTask.Title" required />
-
-                    <!-- Importance dropdown list with an optional default option -->
+                    <h6>Edit Task Importance</h6> <!-- Add title here -->
                     <select class="form-control" @bind="editedTask.Importance">
                         <option value="">None</option> <!-- Optional default option -->
                         @foreach (var importance in Enum.GetValues(typeof(TaskImportance)))
@@ -100,10 +100,9 @@
                             <option value="@importance">@importance</option>
                         }
                     </select>
-
+                    <h6>Edit Task Planning Date</h6> <!-- Add title here -->
                     <input class="form-control" @bind="editedTask.PlanningDate" type="date" required />
-
-                    <!-- Severity dropdown list with an optional default option -->
+                    <h6>Edit Task Severity</h6> <!-- Add title here -->
                     <select class="form-control" @bind="editedTask.Severity">
                         <option value="">None</option> <!-- Optional default option -->
                         @foreach (var severity in Enum.GetValues(typeof(TaskSeverity)))
@@ -111,10 +110,10 @@
                             <option value="@severity">@severity</option>
                         }
                     </select>
-
+                    <h6>Edit Task Description</h6> <!-- Add title here -->
                     <input class="form-control" @bind="editedTask.Description" />
+                    <h6>Edit Task Status</h6> <!-- Add title here -->
                     <input class="form-control" @bind="editedTask.Status" />
-
                     <!-- ... Add other fields ... -->
                 </div>
                 <div class="modal-footer">
@@ -132,16 +131,16 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add New Task</h5>
+                    <h6 class="modal-title">Add New Task</h6>
                     <button type="button" class="close" @onclick="CloseNewTaskModal">
                         <span>&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <!-- Add new task form here -->
+                    <h6>Details</h6> <!-- Add title here -->
                     <input class="form-control" @bind="newTask.Title" placeholder="Title" required />
-
-                    <!-- Importance dropdown list with an optional default option -->
+                    <h6>Importance</h6> <!-- Add title here -->
                     <select class="form-control" @bind="newTask.Importance">
                         <option value="">None</option> <!-- Optional default option -->
                         @foreach (var importance in Enum.GetValues(typeof(TaskImportance)))
@@ -149,10 +148,9 @@
                             <option value="@importance">@importance</option>
                         }
                     </select>
-
+                    <h6>Planning Date</h6> <!-- Add title here -->
                     <input class="form-control" @bind="newTask.PlanningDate" type="date" placeholder="Planning Date" required />
-
-                    <!-- Severity dropdown list with an optional default option -->
+                    <h6>Severity</h6> <!-- Add title here -->
                     <select class="form-control" @bind="newTask.Severity">
                         <option value="">None</option> <!-- Optional default option -->
                         @foreach (var severity in Enum.GetValues(typeof(TaskSeverity)))
@@ -160,10 +158,10 @@
                             <option value="@severity">@severity</option>
                         }
                     </select>
-
+                    <h6>Description</h6> <!-- Add title here -->
                     <input class="form-control" @bind="newTask.Description" placeholder="Description" />
+                    <h6>Status</h6> <!-- Add title here -->
                     <input class="form-control" @bind="newTask.Status" placeholder="Status" />
-
                     <!-- ... Add other fields ... -->
                 </div>
                 <div class="modal-footer">
@@ -174,10 +172,30 @@
         </div>
     </div>
 }
-
+@if (taskIdToDelete != -1)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display: block; background: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title">Delete Task</h6>
+                    <button type="button" class="close" @onclick="CloseNewTaskModal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div>     Are you sure ?</div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" @onclick="ConfirmDeleteTask">Yes</button>
+                    <button class="btn btn-secondary" @onclick="CloseNewTaskModal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
     private TaskService taskService = new TaskService();
+
     private int taskIdToDelete = -1;
     // New task modal control
     private bool showNewTaskModal = false;
@@ -219,7 +237,7 @@
     private void DeleteTask(int taskId)
     {
         taskIdToDelete = taskId;
-        ConfirmDeleteTask();
+
     }
 
     private void ConfirmDeleteTask()
@@ -242,6 +260,7 @@
     private void CloseNewTaskModal()
     {
         showNewTaskModal = false;
+        taskIdToDelete = -1;
         // Reset the new task form
         newTask = new Data.Task();
     }
