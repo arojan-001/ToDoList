@@ -1,0 +1,68 @@
+﻿@page "/fetchdata"
+@using toDoList.Data
+
+<h3>Weather forecast</h3>
+
+<p>This component demonstrates fetching data from an external source.</p>
+
+@if (forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Temp. (C)</th>
+                <th>Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var forecast in forecasts)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private WeatherForecast[] forecasts;
+
+    protected override async System.Threading.Tasks.Task OnInitializedAsync()
+    {
+        // Fetch data from an external source, e.g., an HTTP API
+        forecasts = await FetchDataFromApi();
+    }
+
+    private async Task<WeatherForecast[]> FetchDataFromApi()
+    {
+        // In a real application, you would make an HTTP request here
+        // For simplicity, we'll just simulate data retrieval.
+        await System.Threading.Tasks.Task.Delay(1000); // Simulate a delay (e.g., network request)
+        return new[]
+        {
+            new WeatherForecast
+            {
+                Date = DateTime.Now,
+                TemperatureC = 20,
+                Summary = "Sunny"
+            },
+            new WeatherForecast
+            {
+                Date = DateTime.Now.AddDays(1),
+                TemperatureC = 25,
+                Summary = "Cloudy"
+            },
+            // Additional forecast data...
+        };
+    }
+}

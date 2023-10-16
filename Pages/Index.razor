@@ -1,0 +1,271 @@
+﻿@page "/"
+
+@using toDoList.Data
+
+<h3>Task List</h3>
+
+<!-- Display a list of tasks -->
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Importance</th>
+            <th>Planning Date</th>
+            <th>Severity</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Modify Date</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var task in taskService.GetTasks())
+        {
+            <tr>
+                <td>@task.Id</td>
+                <td class="list-group-item d-flex justify-content-between">
+                    <span @onclick="() => ToggleTaskCompletion(task)" style="cursor: pointer;">
+                        @if (task.Status == Data.TaskStatus.Done)
+                        {
+                            <del>@task.Title</del>
+                        }
+                        else
+                        {
+                            @task.Title
+                        }
+                    </span>
+                </td>
+                <td>
+                    <select class="form-control" @bind="task.Importance">
+                        @foreach (var importance in Enum.GetValues(typeof(TaskImportance)))
+                        {
+                            <option value="@importance">@importance</option>
+                        }
+                    </select>
+                </td>
+                <td>@task.PlanningDate.ToShortDateString()</td>
+                <td>
+                    <select class="form-control" @bind="task.Severity">
+                        @foreach (var severity in Enum.GetValues(typeof(TaskSeverity)))
+                        {
+                            <option value="@severity">@severity</option>
+                        }
+                    </select>
+                </td>
+                <td>@task.Description</td>
+                <td>
+                    <select class="form-control" @bind="task.Status">
+                        @foreach (var status in Enum.GetValues(typeof(Data.TaskStatus)))
+                        {
+                            <option value="@status">@status</option>
+                        }
+                    </select>
+                </td>
+                <td>@task.ModifyDate</td>
+                <td>
+                    <button class="btn btn-primary" @onclick="() => EditTask(task)">Edit</button>
+                    <button class="btn btn-danger" @onclick="() => DeleteTask(task.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Add a new task button -->
+<button class="btn btn-success" @onclick="OpenNewTaskModal">Add New Task</button>
+
+<!-- Modal for adding a new task -->
+<!-- Modal for adding a new task -->
+@if (showEditTaskModal)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display: block; background: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Task</h5>
+                    <button type="button" class="close" @onclick="CloseEditTaskModal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Edit task form here -->
+                    <input class="form-control" @bind="editedTask.Title" required />
+
+                    <!-- Importance dropdown list with an optional default option -->
+                    <select class="form-control" @bind="editedTask.Importance">
+                        <option value="">None</option> <!-- Optional default option -->
+                        @foreach (var importance in Enum.GetValues(typeof(TaskImportance)))
+                        {
+                            <option value="@importance">@importance</option>
+                        }
+                    </select>
+
+                    <input class="form-control" @bind="editedTask.PlanningDate" type="date" required />
+
+                    <!-- Severity dropdown list with an optional default option -->
+                    <select class="form-control" @bind="editedTask.Severity">
+                        <option value="">None</option> <!-- Optional default option -->
+                        @foreach (var severity in Enum.GetValues(typeof(TaskSeverity)))
+                        {
+                            <option value="@severity">@severity</option>
+                        }
+                    </select>
+
+                    <input class="form-control" @bind="editedTask.Description" />
+                    <input class="form-control" @bind="editedTask.Status" />
+
+                    <!-- ... Add other fields ... -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" @onclick="SaveEditedTask">Save</button>
+                    <button class="btn btn-secondary" @onclick="CloseEditTaskModal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (showNewTaskModal)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display: block; background: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Task</h5>
+                    <button type="button" class="close" @onclick="CloseNewTaskModal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Add new task form here -->
+                    <input class="form-control" @bind="newTask.Title" placeholder="Title" required />
+
+                    <!-- Importance dropdown list with an optional default option -->
+                    <select class="form-control" @bind="newTask.Importance">
+                        <option value="">None</option> <!-- Optional default option -->
+                        @foreach (var importance in Enum.GetValues(typeof(TaskImportance)))
+                        {
+                            <option value="@importance">@importance</option>
+                        }
+                    </select>
+
+                    <input class="form-control" @bind="newTask.PlanningDate" type="date" placeholder="Planning Date" required />
+
+                    <!-- Severity dropdown list with an optional default option -->
+                    <select class="form-control" @bind="newTask.Severity">
+                        <option value="">None</option> <!-- Optional default option -->
+                        @foreach (var severity in Enum.GetValues(typeof(TaskSeverity)))
+                        {
+                            <option value="@severity">@severity</option>
+                        }
+                    </select>
+
+                    <input class="form-control" @bind="newTask.Description" placeholder="Description" />
+                    <input class="form-control" @bind="newTask.Status" placeholder="Status" />
+
+                    <!-- ... Add other fields ... -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" @onclick="SaveNewTask">Save</button>
+                    <button class="btn btn-secondary" @onclick="CloseNewTaskModal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+    private TaskService taskService = new TaskService();
+    private int taskIdToDelete = -1;
+    // New task modal control
+    private bool showNewTaskModal = false;
+    // Edited task control
+    private Data.Task editedTask = new Data.Task();
+
+    private bool showEditTaskModal = false;
+
+    private void EditTask(Data.Task task)
+    {
+        editedTask = new Data.Task
+            {
+                Id = task.Id,
+                Title = task.Title,
+                Importance = task.Importance,
+                PlanningDate = task.PlanningDate,
+                Severity = task.Severity,
+                Description = task.Description,
+                Status = task.Status,
+                ModifyDate = task.ModifyDate
+            };
+        showEditTaskModal = true;
+    }
+    private void CloseEditTaskModal()
+    {
+        showEditTaskModal = false;
+        // Reset the edited task form
+        editedTask = new Data.Task();
+    }
+
+    private void SaveEditedTask()
+    {
+        // Implement the logic to save the edited task here
+        // You can update the task in the list or send it to a service.
+        // Make sure to update the original task with the editedTask data.
+        taskService.UpdateTask(editedTask);
+        CloseEditTaskModal();
+    }
+    private void DeleteTask(int taskId)
+    {
+        taskIdToDelete = taskId;
+        ConfirmDeleteTask();
+    }
+
+    private void ConfirmDeleteTask()
+    {
+        if (taskIdToDelete != -1)
+        {
+            taskService.DeleteTask(taskIdToDelete);
+            taskIdToDelete = -1;
+        }
+    }
+
+    // New task control
+    private Data.Task newTask = new Data.Task();
+
+    private void OpenNewTaskModal()
+    {
+        showNewTaskModal = true;
+    }
+
+    private void CloseNewTaskModal()
+    {
+        showNewTaskModal = false;
+        // Reset the new task form
+        newTask = new Data.Task();
+    }
+
+    private void SaveNewTask()
+    {
+        // Implement the logic to save a new task here
+        // You can add the new task to the list or send it to a service.
+        taskService.AddTask(newTask);
+        CloseNewTaskModal();
+    }
+
+    void ToggleTaskCompletion(Data.Task task)
+    {
+        if (task.Status == Data.TaskStatus.Done)
+        {
+            task.Status = Data.TaskStatus.InProgress;
+        }
+        else
+        {
+            task.Status = Data.TaskStatus.Done;
+        }
+        taskService.UpdateTask(task);
+    }
+
+}
+
